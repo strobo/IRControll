@@ -1,0 +1,146 @@
+===============================================================
+ Natural Tiny Shell - A tiny shell for a small embedded system
+ Copyright(C) 2011 Shinichiro Nakamura
+===============================================================
+
+ Natural Tiny Shell (NT-Shell) is a tiny shell for a small
+ embedded system.
+
+1. Special thanks
+
+ Mr.Paul Williams
+ - He created a draw of DEC compatible state machine parser.
+ Mr.Joshua Haberman
+ - He implemented the state machine parser with C language.
+   And it has great interface. It's really simple and smart!
+
+2. The background
+
+ Today, There are so many great MPUs.
+ And the developper can design a small embedded system with it.
+ It's really great things and I never imagine 20 years ago.
+
+ There is a way to debug a embedded system using UART interface.
+ It is same as UNIX terminal interfaces.
+
+ The developper can be control a embedded system with it.
+
+3. The basic concepts
+
+ * Small :)
+ * Simple :)
+ * Compatible with VT100 :)
+ * No need any C runtime library :)
+
+4. Features
+
+ CTRL+A : Head
+ CTRL+E : Tail
+ CTRL+F : Cursor right
+ CTRL+B : Cursor left
+ CTRL+C : Cancel
+ CTRL+P : History(Prev)
+ CTRL+N : History(Next)
+
+5. The structure
+
+ NT-Shell are consists from 5 modules.
+
+ * Top interface module
+    ntshell.c
+    ntshell.h
+ * Utility
+    ntopt.c
+    ntopt.h
+    ntlibc.c
+    ntlibc.h
+ * VT100 parser
+    vtparse.c
+    vtparse.h
+    vtparse_table.c
+    vtparse_table.h
+ * Text editor
+    text_editor.c
+    text_editor.h
+ * Text history
+    text_history.c
+    text_history.h
+
+6. Porting guide
+
+ The NT-Shell interface is really simple.
+ It need 2 I/O interfaces for UART and a callback interface
+ for getting a user request.
+
+ void ntshell(
+        vtparse_t *parser,
+        text_editor_t *editor,
+        text_history_t *history,
+        int (*func_read)(void *buf, int cnt),
+        int (*func_write)(const void *buf, int cnt),
+        int (*func_cb)(const unsigned char *text));
+
+ 6-1. func_read
+
+  func_read is a interface for reading user key inputs.
+  It's blocking interface.
+
+ 6-2. func_write
+
+  func_write is a interface for writing shell outputs.
+  It's blocking interface.
+
+ 6-3. func_cb
+
+  func_cb is a callback interface for user request to your system.
+
+7. The license
+
+ * vtparse and vtparse_table is in the public domain.
+ * ntshell, text_editor, text_history is in the MIT license.
+
+ ===============================================================
+ The MIT license for ntshell, text_editor, text_history
+ ===============================================================
+ Copyright (c) 2010-2011 Shinichiro Nakamura
+
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+ ===============================================================
+
+ So you can use this software in non-commercial or commercial products.
+ But there aren't any warranty.
+
+ Please do NOT remove copyright texts, if you redistribute this package.
+
+8. References
+
+ * A parser for DEC窶冱 ANSI-compatible video terminal
+   http://vt100.net/emu/dec_ansi_parser
+
+9. Version
+
+ * 2011/03/01   Version 0.0.1    Initial version.
+ * 2011/03/02   Version 0.0.2    Added a utility module.
+ * 2011/03/04   Version 0.0.3    Buf fixed.
+ * 2011/04/30   Version 0.0.4    Changed an implementation of the vtparse table.
+                                 Added ntopt.
+                                 Added ntlibc.
