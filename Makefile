@@ -1,5 +1,5 @@
 TARGET         = avr_test
-CSRC           = main.c uart.c ntshell/ntshell.c ntshell/ntlibc.c ntshell/ntopt.c ntshell/text_editor.c ntshell/text_history.c ntshell/vtparse.c ntshell/vtparse_table.c
+CSRC           = main.c uart.c 
 ASRC           = xitoa.S
 MCU_TARGET     = atmega328p
 OPTIMIZE       = -Os -mcall-prologues
