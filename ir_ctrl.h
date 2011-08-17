@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------/
-/  IR-CTRL - IR remote control module  R0.01                  (C)ChaN, 2008
+/  IR_CTRL - IR remote control module  R0.01                  (C)ChaN, 2008
 /-----------------------------------------------------------------------------/
 /  Common include file for IR_CTRL module and application
 /----------------------------------------------------------------------------*/
@@ -7,14 +7,15 @@
 #include <stdint.h>
 
 /* Put hardware dependent include files here */
-<to be filled>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 
 /* Enable/Disable transmission/reception functions <1/0> */
 #define IR_USE_XMIT	1
-#define IR_USE_RCVR	1
-#define IR_USE_NEC	0
-#define IR_USE_AEHA	1
+#define IR_USE_RCVR	0
+#define IR_USE_NEC	1
+#define IR_USE_AEHA	0
 #define IR_USE_SONY	0
 
 
