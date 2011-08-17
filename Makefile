@@ -1,7 +1,7 @@
 TARGET         = avr_test
 CSRC           = main.c uart.c 
 ASRC           = xitoa.S
-MCU_TARGET     = atmega328p
+MCU_TARGET     = atmega168
 OPTIMIZE       = -Os -mcall-prologues
 DEFS           =
 LIBS           =

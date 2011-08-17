@@ -38,6 +38,7 @@ int main (void)
 	xputs(PSTR("ir test monitor for AVR\n"));
 
 	for (;;) {
+		xputc(uart_get());
 	}
 }
 

@@ -6,9 +6,9 @@
 #include <avr/interrupt.h>
 #include "uart.h"
 
-//#define	SYSCLK		9216000 //9.216MHz
-#define SYSCLK	20000000
-#define	BAUD	115200
+#define	SYSCLK		20000000UL
+//#define	BAUD		38400
+#define BAUD 115200
 
 
 typedef struct _fifo {
@@ -20,7 +20,7 @@ typedef struct _fifo {
 
 
 static volatile
-FIFO txfifo, rxfifo;
+FIFO rxfifo, txfifo;
 
 
 
@@ -28,16 +28,17 @@ FIFO txfifo, rxfifo;
 
 void uart_init()
 {
+	/* Flush FIFO */
 	rxfifo.idx_r = 0;
 	rxfifo.idx_w = 0;
 	rxfifo.count = 0;
 	txfifo.idx_r = 0;
 	txfifo.idx_w = 0;
 	txfifo.count = 0;
-	
 
-	UBRR0L = SYSCLK/BAUD/16-1;
-	UBRR0L = 10;
+	/* Enable USART0 (N81) */
+	//UBRR0L = SYSCLK/BAUD/16-1;
+	UBRR0L = 64;
 	UCSR0B = _BV(RXEN0)|_BV(RXCIE0)|_BV(TXEN0);
 }
 
@@ -56,14 +57,12 @@ uint8_t uart_get ()
 
 
 	i = rxfifo.idx_r;
-	while(rxfifo.count == 0);
+	while (rxfifo.count == 0);
 	d = rxfifo.buff[i++];
 	cli();
 	rxfifo.count--;
 	sei();
-	if(i >= sizeof(rxfifo.buff))
-		i = 0;
-	rxfifo.idx_r = i;
+	rxfifo.idx_r = i % sizeof(rxfifo.buff);
 
 	return d;
 }
@@ -77,56 +76,50 @@ void uart_put (uint8_t d)
 
 
 	i = txfifo.idx_w;
-	while(txfifo.count >= sizeof(txfifo.buff));
+	while (txfifo.count >= sizeof(txfifo.buff));
 	txfifo.buff[i++] = d;
 	cli();
 	txfifo.count++;
-	UCSR0B = _BV(RXEN0)|_BV(RXCIE0)|_BV(TXEN0)|_BV(UDRIE0);
+	UCSR0B |= _BV(UDRIE0);
 	sei();
-	if(i >= sizeof(txfifo.buff))
-		i = 0;
-	txfifo.idx_w = i;
+	txfifo.idx_w = i % sizeof(txfifo.buff);
 }
 
 
 /* UART RXC interrupt */
 
-//SIGNAL(SIG_UART0_RECV)
 ISR(USART_RX_vect)
 {
 	uint8_t d, n, i;
 
-	xputc("a");
+
 	d = UDR0;
 	n = rxfifo.count;
-	if(n < sizeof(rxfifo.buff)) {
+	if (n < sizeof(rxfifo.buff)) {
 		rxfifo.count = ++n;
 		i = rxfifo.idx_w;
 		rxfifo.buff[i++] = d;
-		if(i >= sizeof(rxfifo.buff))
-			i = 0;
-		rxfifo.idx_w = i;
+		rxfifo.idx_w = i % sizeof(rxfifo.buff);
 	}
 }
 
 
 /* UART UDRE interrupt */
 
-//SIGNAL(SIG_UART0_DATA)
 ISR(USART_UDRE_vect)
 {
 	uint8_t n, i;
 
+
 	n = txfifo.count;
-	if(n) {
+	if (n) {
 		txfifo.count = --n;
 		i = txfifo.idx_r;
 		UDR0 = txfifo.buff[i++];
-		if(i >= sizeof(txfifo.buff))
-			i = 0;
-		txfifo.idx_r = i;
+		txfifo.idx_r = i % sizeof(txfifo.buff);
 	}
-	if(n == 0)
-		UCSR0B = _BV(RXEN0)|_BV(RXCIE0)|_BV(TXEN0);
+	if (n == 0)
+		UCSR0B &= ~_BV(UDRIE0);
 }
+
 
