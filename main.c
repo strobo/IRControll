@@ -24,6 +24,28 @@ void IoInit ()
 	sei();
 }
 
+static
+void get_line (char *buff, int len)
+{
+	char c;
+	int idx = 0;
+
+
+	xputc('>');
+	for (;;) {
+		if (!uart_test()) continue;
+		c = uart_get();
+		if (c == '\r') break;
+		if ((c == '\b') && idx) {
+			idx--; xputc(c);
+		}
+		if (((uint8_t)c >= ' ') && (idx < len - 1)) {
+			buff[idx++] = c; xputc(c);
+		}
+	}
+	buff[idx] = 0;
+	xputc('\n');
+}
 
 
 /*-----------------------------------------------------------------------*/
@@ -31,6 +53,8 @@ void IoInit ()
 
 int main (void)
 {
+	char line[64], *p;
+
 	IoInit();
 	/* Join xitoa module to uart module */
 	xfunc_out = (void (*)(char))uart_put;
@@ -38,7 +62,17 @@ int main (void)
 	xputs(PSTR("ir test monitor for AVR\n"));
 
 	for (;;) {
-		xputc(uart_get());
+		get_line(line, sizeof(line));
+		p = line;
+
+		switch(*p++){
+			case 'n':
+			xputs(PSTR("aaa\n"));
+			break;
+			case 's':
+			xputs(PSTR("i\n"));
+			break;
+		}
 	}
 }
 
