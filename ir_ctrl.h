@@ -48,4 +48,4 @@ volatile IR_STRUCT IrCtrl;
 /* Prototypes */
 void IR_initialize (void);
 int IR_xmit (uint8_t, const uint8_t*, uint8_t);
-
+void brust38k();

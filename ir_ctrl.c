@@ -238,5 +238,12 @@ void IR_initialize (void)
 	IrCtrl.state = IR_IDLE;
 
 }
-
+void brust38k(){
+	_tmr_t tmr;
+	IR_INIT_TIMER();
+	IR_INIT_XMIT();
+	IR_TX_38K();
+	tmr=0;
+	IR_TX_ON();
+}
 
