@@ -52,7 +52,20 @@ unsigned int atoi16(  char *NumberString )
 	unsigned int result = strtoul( NumberString, NULL, 16 );
 	return result;
 }
+uint8_t atoi2( char *NumberString )
+{
+	uint8_t    lData = 0;
+	uint8_t    cbPick;
 
+	do{
+		cbPick = (uint8_t)*NumberString;
+		if((cbPick == '0') || (cbPick == '1')){
+			cbPick &= 0x0f;
+			lData = lData * 2 + (uint8_t)cbPick;
+		}
+	}while(*NumberString++ != '\0');
+	return lData;
+}
 /*-----------------------------------------------------------------------*/
 /* Main                                                                  */
 
@@ -87,15 +100,19 @@ int main (void)
 			if(*p++ == 32) {
 				addr_s = strtok(p, " ");
 				val_s  = strtok(NULL, " ");
-				ramAddr = (char *)atoi16(addr_s);
-				val     = atoi16(val_s);
 
-				xprintf(PSTR("addr_s is: %s\n"),addr_s);
-				xprintf(PSTR("val_s is: %s\n"),val_s);
+				ramAddr = (char *)atoi16(addr_s);
+				if(strncmp(val_s, "0b",2) == 0){
+					val_s += 2;
+					val = (uint8_t)atoi2(val_s);
+				}else if(strncmp(val_s, "0x", 2) == 0){
+					val_s += 2;
+					val = (uint8_t)atoi16(val_s);
+				}
+
 				xprintf(PSTR("ramAddr: %d\n"), ramAddr);
 				xprintf(PSTR("val: %d\n"), val);
 				*ramAddr = val;
-				ramAddr = val = addr_s = val_s = 0;
 			}
 			break;
 			case 'r':	/* r <addr> addrのデータを読み出す */
