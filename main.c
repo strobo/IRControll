@@ -87,13 +87,14 @@ int main (void)
 
 		switch(*p++){
 			case 'b':
-			xputs(PSTR("brust38k!"));
+			xputs(PSTR("brust38k!\n"));
 			//brust38k();
+			DDRD = _BV(DDD6);
 			TCCR0A = _BV(WGM01) | _BV(WGM00);
 			TCCR0B = _BV(WGM02) | 0b010;
 			OCR0A = 32;
 			TCNT0 = 0;
-			TCCR0A |= _BV(COM0B1);
+			TCCR0A |= _BV(COM0A0);
 
 			break;
 			case 'w':	/* w <addr> <val> addrにvalを書きこむ */
