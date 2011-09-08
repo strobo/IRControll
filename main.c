@@ -8,6 +8,9 @@
 #include "ir_ctrl.h"
 
 
+#define IR_TX_ON()		TCCR0A |= _BV(COM0B1) 	/* Tx: Start IR burst. means 1 */
+#define IR_TX_OFF()		TCCR0A &= ~_BV(COM0B1)	/* Tx: Stop IR burst. means 0 */
+
 static
 void IoInit ()
 {
@@ -18,7 +21,7 @@ void IoInit ()
 	DDRB = 0xff;
 
 	PORTC = 0b11111111;	// Port C
-	PORTD = 0b11111111; // Port D
+	PORTD = 0b00000000; // Port D
 
 	uart_init();		// Initialize UART driver
 	sei();
@@ -47,10 +50,9 @@ void get_line (char *buff, int len)
 	xputc('\n');
 }
 
-unsigned int atoi16(  char *NumberString )
+uint8_t atoi16(  char *NumberString )
 {
-	unsigned int result = strtoul( NumberString, NULL, 16 );
-	return result;
+	return (uint8_t)strtoul( NumberString, NULL, 16 );
 }
 uint8_t atoi2( char *NumberString )
 {
@@ -65,6 +67,24 @@ uint8_t atoi2( char *NumberString )
 		}
 	}while(*NumberString++ != '\0');
 	return lData;
+}
+void init_timer0(){
+	DDRD = _BV(DDD6) | _BV(DDD5);
+	PORTD &= ~_BV(PORTD5);
+	TCCR0A = _BV(WGM01) | _BV(WGM00);
+	TCCR0B = _BV(WGM02) | 0b010;
+	OCR0A = 32;
+	OCR0B = 10;
+	TCNT0 = 0;
+}
+void tick(void){
+	xprintf(PSTR("tick "));
+}
+void init_ticker(){
+	// timer1 initialize code
+}
+void tickerAttach(void (*func)(void)){
+	xprintf(PSTR("attached %d\n"),func);
 }
 /*-----------------------------------------------------------------------*/
 /* Main                                                                  */
@@ -87,16 +107,14 @@ int main (void)
 
 		switch(*p++){
 			case 'b':
-			xputs(PSTR("brust38k!\n"));
-			//brust38k();
-			DDRD = _BV(DDD6);
-			TCCR0A = _BV(WGM01) | _BV(WGM00);
-			TCCR0B = _BV(WGM02) | 0b010;
-			OCR0A = 32;
-			TCNT0 = 0;
-			TCCR0A |= _BV(COM0A0);
-
-			break;
+				xputs(PSTR("brust38k!\n"));
+				init_timer0();
+				IR_TX_ON();
+				break;
+			case 'n':
+				xputs(PSTR("TX_OFF\n"));
+				IR_TX_OFF();
+				break;
 			case 'w':	/* w <addr> <val> addrにvalを書きこむ */
 			if(*p++ == 32) {
 				addr_s = strtok(p, " ");
