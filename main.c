@@ -5,12 +5,17 @@
 #include <stdlib.h>
 #include "uart.h"
 #include "xitoa.h"
-#include "ir_ctrl.h"
+//#include "ir_ctrl.h"
 
 
 #define IR_TX_ON()		TCCR0A |= _BV(COM0B1) 	/* Tx: Start IR burst. means 1 */
 #define IR_TX_OFF()		TCCR0A &= ~_BV(COM0B1)	/* Tx: Stop IR burst. means 0 */
+#define ISR_COMPARE()   ISR(TIMER1_COMPA_vect)  /* Timer compare match ISR */
 
+static void (*tick_func)(void);
+ISR_COMPARE(){
+	(*tick_func)();
+}
 static
 void IoInit ()
 {
@@ -77,15 +82,26 @@ void init_timer0(){
 	OCR0B = 10;
 	TCNT0 = 0;
 }
-void tick(void){
-	xprintf(PSTR("tick "));
+
+static void tick(void){
+	PORTD ^= _BV(PORTD6);
 }
-void init_ticker(){
-	// timer1 initialize code
+void init_ticker(void (*func)(void)){
+	// timer1 initialize
+	// CTC mode and clk/1
+	TCCR1B = _BV(WGM12) | _BV(CS10);
+
+	// interval 435us
+	// @10MHz -> OCR1A = 4348
+	// @20MHz -> OCR1A = 8698
+	OCR1A = 4348;
+	TCNT1 = 0;
+
+	tick_func = *func;		// set ticking function
+	TIMSK1 |= _BV(OCIE1A);	// Enabnle compare interrupt
+	sei();
 }
-void tickerAttach(void (*func)(void)){
-	xprintf(PSTR("attached %d\n"),func);
-}
+
 /*-----------------------------------------------------------------------*/
 /* Main                                                                  */
 
@@ -114,6 +130,14 @@ int main (void)
 			case 'n':
 				xputs(PSTR("TX_OFF\n"));
 				IR_TX_OFF();
+				break;
+			case 'c':
+				xputs(PSTR("Tick setup\n"));
+				init_ticker(&tick);
+				break;
+			case 'v':
+				xputs(PSTR("PD6 invert\n"));
+				PORTD ^= _BV(PORTD6);
 				break;
 			case 'w':	/* w <addr> <val> addrにvalを書きこむ */
 			if(*p++ == 32) {
