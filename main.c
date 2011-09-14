@@ -75,9 +75,14 @@ uint8_t atoi2( char *NumberString )
 int main (void)
 {
 	char line[64], *p;
+	uint8_t buf[35];
 	uint8_t *ramAddr,val;
 	char *addr_s,*val_s;
-
+	buf[0]=0x11;buf[1]=0xDA;buf[2]=0x27;buf[3]=0x00;buf[4]=0xC5;buf[5]=0x00;buf[6]=0x00;buf[7]=0xD7;
+	buf[8]=0x11;buf[9]=0xDA;buf[10]=0x27;buf[11]=0x00;buf[12]=0x42;buf[13]=0x00;buf[14]=0x00;buf[15]=0x54;
+	buf[16]=0x11;buf[17]=0xDA;buf[18]=0x27;buf[19]=0x00;buf[20]=0x00;buf[21]=0x39;buf[22]=0x28;buf[23]=0x00;
+	buf[24]=0xA0;buf[25]=0x00;buf[26]=0x00;buf[27]=0x06;buf[28]=0x60;buf[29]=0x00;buf[30]=0x00;buf[31]=0xC1;
+	buf[32]=0x00;buf[33]=0x00;buf[34]=0x3A;
 	IoInit();
 	/* Join xitoa module to uart module */
 	xfunc_out = (void (*)(char))uart_put;
@@ -105,6 +110,11 @@ int main (void)
 			case 'v':
 				xputs(PSTR("PD6 invert\n"));
 				PORTD ^= _BV(PORTD6);
+				break;
+			case 's':
+				xputs(PSTR("setData()\n"));
+				init_ir();
+				setData(DAIKIN, buf, 35*8);
 				break;
 			case 'w':	/* w <addr> <val> addrにvalを書きこむ */
 			if(*p++ == 32) {
