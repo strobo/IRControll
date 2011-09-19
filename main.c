@@ -68,7 +68,16 @@ uint8_t atoi2( char *NumberString )
 	}while(*NumberString++ != '\0');
 	return lData;
 }
+uint8_t checksum(uint8_t *buf)
+{
+	uint8_t sum = 0;
+	uint8_t i;
 
+	for(i = 16; i <= 33; i++){
+		sum += buf[i];
+	}
+	return sum;
+}
 /*-----------------------------------------------------------------------*/
 /* Main                                                                  */
 
@@ -83,6 +92,7 @@ int main (void)
 	buf[16]=0x11;buf[17]=0xDA;buf[18]=0x27;buf[19]=0x00;buf[20]=0x00;buf[21]=0x39;buf[22]=0x28;buf[23]=0x00;
 	buf[24]=0xA0;buf[25]=0x00;buf[26]=0x00;buf[27]=0x06;buf[28]=0x60;buf[29]=0x00;buf[30]=0x00;buf[31]=0xC1;
 	buf[32]=0x00;buf[33]=0x00;buf[34]=0x3A;
+	buf[34] = checksum(buf);
 	IoInit();
 	/* Join xitoa module to uart module */
 	xfunc_out = (void (*)(char))uart_put;

@@ -128,6 +128,8 @@ void init_timer0(){
 	TCCR0B = _BV(WGM02) | 0b010;
 	OCR0A = 32;
 	OCR0B = 10;
+	//OCR0A = 16;
+	//OCR0B = 5;
 	TCNT0 = 0;
 }
 
@@ -139,7 +141,7 @@ void init_ticker(void (*func)(void)){
 	// interval 435us
 	// @10MHz -> OCR1A = 4348
 	// @20MHz -> OCR1A = 8698
-	OCR1A = 4348;
+	OCR1A = 4290; // 4348
 	TCNT1 = 0;
 
 	tick_func = *func;		// set ticking function
@@ -166,14 +168,14 @@ void init_ir(void)
 	data.bitlength = 0;
 
 	tus.STARTER_HEAD = 12;
-	tus.STARTER_TAIL = 57;
+	tus.STARTER_TAIL = 58;	// 57
 	tus.LEADER_DAIKIN_HEAD = 8;
 	tus.LEADER_DAIKIN_TAIL = 4;
 
 	tus.TRAILER_DAIKIN_HEAD = 1;
 	tus.TRAILER_DAIKIN_TAIL = 2;
 
-	tus.WAIT = 78; // 79.05ms
+	tus.WAIT = 78; //78  79.05ms
 }
 
 uint16_t setData(IR_Format format , uint8_t *buf, uint16_t bitlength)
@@ -196,7 +198,7 @@ uint16_t setData(IR_Format format , uint8_t *buf, uint16_t bitlength)
 	data.format = format;
 	data.bitlength = bitlength;
 	for (i = 0; i < 35; i++) {
-		//data.buffer[i] = buf[i];
+		data.buffer[i] = buf[i];
 		xprintf(PSTR("0x%02X "), buf[i]);
 	}
 
